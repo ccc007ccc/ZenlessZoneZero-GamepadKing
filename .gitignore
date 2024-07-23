@@ -3,3 +3,5 @@
 /temp_build
 /build
 /test.py
+__pycache__/
+Controller/__pycache__/

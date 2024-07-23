@@ -9,22 +9,24 @@
 
 ### 使用源代码
 
-1. 安装所需库：
-
-   ```sh
-   pip install -r requirements.txt
-   ```
-2. 克隆存储库：
+1. 克隆存储库：
 
    ```sh
    git clone https://github.com/ccc007ccc/ZenlessZoneZero-GamepadKing.git
    cd ZenlessZoneZero-GamepadKing
    ```
+2. 安装所需库：
+
+   ```sh
+   pip install -r requirements.txt
+   ```
+
 3. 运行脚本()：
 
    ```sh
    python start.py
    ```
+   
 4. 根据终端提示选择手柄类型
 5. 按下 `RT` 键(R2)启动或关闭双闪模式,手柄按B(▢)一键双闪。
 6. 终端内按 `Ctrl + C` 退出。

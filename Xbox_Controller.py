@@ -7,8 +7,10 @@ class XboxController:
     def __init__(self):
         self.lt_pressed = False
         self.b_pressed = False
+        self.dpad_up_pressed = False
         self.lt_callbacks = {"press": [], "release": []}
         self.b_callbacks = {"press": [], "release": []}
+        self.dpad_up_callbacks = {"press": [], "release": []}
         self.running = False
 
     def add_lt_callback(self, event: str, callback: Callable):
@@ -19,9 +21,13 @@ class XboxController:
         if event in ["press", "release"]:
             self.b_callbacks[event].append(callback)
 
+    def add_dpad_up_callback(self, event: str, callback: Callable):
+        if event in ["press", "release"]:
+            self.dpad_up_callbacks[event].append(callback)
+
     def _read_gamepad(self):
         while self.running:
-            try:
+            # try:
                 events = get_gamepad()
                 for event in events:
                     if event.code == "ABS_Z":  # LT
@@ -42,10 +48,19 @@ class XboxController:
                             self.b_pressed = False
                             for callback in self.b_callbacks["release"]:
                                 callback()
+                    elif event.code == "ABS_HAT0Y":  # D-pad Up/Down
+                        if event.state == -1 and not self.dpad_up_pressed:  # Up
+                            self.dpad_up_pressed = True
+                            for callback in self.dpad_up_callbacks["press"]:
+                                callback()
+                        elif event.state == 0 and self.dpad_up_pressed:
+                            self.dpad_up_pressed = False
+                            for callback in self.dpad_up_callbacks["release"]:
+                                callback()
                 time.sleep(0.001)  # Adjust sleep time if necessary
-            except UnpluggedError:
-                print("手柄断开,一秒后重连")
-                time.sleep(1)
+            # except UnpluggedError:
+            #     print("手柄断开,一秒后重连")
+            #     time.sleep(1)
 
     def start(self):
         self.running = True

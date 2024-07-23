@@ -1,0 +1,5 @@
+/.vscode
+/output
+/temp_build
+/build
+/test.py

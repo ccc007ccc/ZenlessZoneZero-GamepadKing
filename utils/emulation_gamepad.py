@@ -93,4 +93,5 @@ class EmulationGamepad:
         
     def BreathOfFire(self):
         self.Attack()
+        time.sleep(0.300)
         self.Attack()

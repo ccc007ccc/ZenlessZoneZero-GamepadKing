@@ -5,7 +5,7 @@ def main():
     while True:
         choice = input("请选择要使用的控制器:\n1. DualSense\n2. Xbox\n输入数字: ")
         if choice == '1':
-            emulator = DualSenseEmulator("ds4")
+            emulator = DualSenseEmulator("xbox")
             break
         elif choice == '2':
             emulator = XboxEmulator("ds4")

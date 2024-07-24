@@ -1,7 +1,7 @@
 # 绝区零手柄王
 
 通过模拟手柄输入来一键双闪。
-注意：本脚本仅适用于手柄。
+注意：本脚本仅适用于手柄。(推荐使用ps5手柄,本脚本支持用ps5手柄灯光显示脚本状态)
 
 ## 使用方法
 
@@ -16,19 +16,16 @@
    git clone https://github.com/ccc007ccc/ZenlessZoneZero-GamepadKing.git
    cd ZenlessZoneZero-GamepadKing
    ```
-
 2. 安装所需库：
 
    ```sh
    pip install -r requirements.txt
    ```
-
 3. 运行脚本(一定要先连接好手柄,因为我不知道怎么写重连≧ ﹏ ≦)：
 
    ```sh
    python main.py
    ```
-
 4. 根据终端提示选择手柄类型
 5. 终端内按 `Ctrl + C` 退出。
 
@@ -47,7 +44,9 @@
 
 ## 代办
 
-- [ ] 十一号刀刀烈火模式
+- [ ] 使用HidHide隐藏物理手柄的所有输入,全部由模拟手柄转发(在写11号刀刀烈火模式时发现物理手柄和虚拟手柄是有冲突的)
+
+- [?] 十一号刀刀烈火模式(目前可以用一半(雾))
 
 ## 免责声明
 

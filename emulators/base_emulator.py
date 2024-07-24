@@ -1,12 +1,13 @@
 from abc import ABC, abstractmethod
 from utils.emulation_gamepad import EmulationGamepad
-import time
+import time, threading
 
 class BaseEmulator(ABC):
     def __init__(self, controller_type : str):
         self.is_running = True
         self.controller = self._create_controller()
         self.gamepad = EmulationGamepad(controller_type)
+        self.x = False
         self.left_trigger = False
         self.pad_up = False
         self.pad_down = False
@@ -33,8 +34,14 @@ class BaseEmulator(ABC):
         if self.double_dodge_is_open and self.king_mode:
             self.gamepad.DoubleDodge()
     def breath_of_Fire(self):
-        if self.breath_of_Fire_is_open and self.king_mode:
+        if self.king_mode and self.breath_of_Fire_is_open and self.x:
             self.gamepad.BreathOfFire()
+            
+    
+    def on_x_down(self):
+        self.x = not self.x
+    def on_x_up(self):
+        self.x = False
             
     def on_left_trigger(self, value):
         # print(f'left trigger value: {value}')
@@ -103,14 +110,22 @@ class BaseEmulator(ABC):
         print('back pressed')
         self.back = True
 
+
+    def long_press_skills(self):
+        while self.is_running:
+            self.breath_of_Fire()
+            time.sleep(0.001)
+            
     def run(self):
         self._setup_callbacks()
         self.controller.start()
+        threading.Thread(target=self.long_press_skills, daemon=True).start()
         while self.is_running:
             self.on_left_tighter_and_pad_up()
             self.on_left_tighter_and_pad_down()
             self.on_left_tighter_and_pad_left()
             self.on_left_tighter_and_pad_right()
+            # self.breath_of_Fire()
             time.sleep(0.001)
         self.controller.stop()
 
@@ -118,7 +133,9 @@ class BaseEmulator(ABC):
         self.controller.add_callback('lt', 'change', self.on_left_trigger)
         
         self.controller.add_callback('b', 'press', self.double_dodge)
-        self.controller.add_callback('x', 'press', self.breath_of_Fire)
+        self.controller.add_callback('x', 'press', self.on_x_down)
+        # self.controller.add_callback('x', 'release', self.on_x_up)
+        
         
         self.controller.add_callback('dpad_up', 'press', self.on_pad_up_down)
         self.controller.add_callback('dpad_up', 'release', self.on_pad_up_up)

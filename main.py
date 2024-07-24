@@ -1,17 +1,19 @@
-from Controller.DualSense import DualSenseEmulator
-from Controller.Xbox import XboxEmulator 
+from emulators.dualsense_emulator import DualSenseEmulator
+from emulators.xbox_emulator import XboxEmulator
+
 def main():
     while True:
-        choice = input("请选择要使用的控制器:\n1. DualSense\n2. Xbox\n")
+        choice = input("请选择要使用的控制器:\n1. DualSense\n2. Xbox\n输入数字: ")
         if choice == '1':
-            dualsense_emulator = DualSenseEmulator()
-            dualsense_emulator.run()
+            emulator = DualSenseEmulator("ds4")
             break
         elif choice == '2':
-            xbox_emulator = XboxEmulator() 
-            xbox_emulator.run()
+            emulator = XboxEmulator("ds4")
             break
         else:
             print("无效选项，请重新选择。")
+    
+    emulator.run()
+
 if __name__ == "__main__":
     main()

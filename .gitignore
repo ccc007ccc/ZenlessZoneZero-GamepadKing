@@ -4,4 +4,4 @@
 /build
 /test.py
 __pycache__/
-Controller/__pycache__/
+**/__pycache__/

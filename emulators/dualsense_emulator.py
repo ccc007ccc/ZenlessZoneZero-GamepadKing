@@ -5,20 +5,20 @@ class DualSenseEmulator(BaseEmulator):
     def _create_controller(self):
         return DualSenseController()
 
-    def _setup_callbacks(self):
-        self.controller.add_callback('left_trigger', 'change', self.on_left_trigger)
-        self.controller.add_callback('circle', 'press', self.on_circle)
-        self.controller.add_callback('up', 'press', self.on_pad_up_down)
-        self.controller.add_callback('up', 'release', self.on_pad_up_up)
-
-    def on_left_trigger(self, value):
-        if value > 0.5 and not self.left_trigger:
-            self.left_trigger = True
-        elif value <= 0.01 and self.left_trigger:
-            self.left_trigger = False
-
+    def change_lightbar_color(self, mode : str):
+        if mode == 'normal':
+            self.controller.set_lightbar_color(0, 0, 255)
+        elif mode == 'king':
+            self.controller.set_lightbar_color(255, 0, 0)
+            
+    def change_rumble(self, mode : str):
+        if mode == 'normal':
+            self.controller.set_rumble('left', 0, 0.05)
+            self.controller.set_rumble('right', 80, 0.05)
+        elif mode == 'king':
+            self.controller.set_rumble('left', 60, 0.05)
+            self.controller.set_rumble('right', 0, 0.05)
     def change_mode(self):
         super().change_mode()
-        self.controller.set_lightbar_color('red' if self.open_emulation else 'blue')
-        self.controller.set_rumble('left', 60 if self.open_emulation else 0, 0.05)
-        self.controller.set_rumble('right', 0 if self.open_emulation else 80, 0.05)
+        self.change_lightbar_color('king') if self.king_mode else self.change_lightbar_color('normal')
+        self.change_rumble('king') if self.king_mode else self.change_rumble('normal')

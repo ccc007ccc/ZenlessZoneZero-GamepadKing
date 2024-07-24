@@ -11,7 +11,7 @@ class DualSenseController(BaseController):
         retries = 0
         while True:
             try:
-                return DS(microphone_invert_led=False, mapping=Mapping.RAW)
+                return DS(microphone_initially_muted=False, microphone_invert_led=False, mapping=Mapping.RAW)
             except InvalidDeviceIndexException:
                 print(f"连接DualSense失败，重试 {retries + 1} 次...")
                 retries += 1
@@ -19,26 +19,66 @@ class DualSenseController(BaseController):
 
     def start(self):
         self.controller.activate()
+        self.controller.lightbar.set_color(0, 0, 255)
 
     def stop(self):
         self.controller.deactivate()
 
     def add_callback(self, button, event, callback):
-        if button == 'left_trigger':
+        if button == 'lt':
             self.controller.left_trigger.on_change(callback)
-        elif button == 'circle':
-            self.controller.btn_circle.on_down(callback)
-        elif button == 'up':
+            
+            
+        elif button == 'a':
+            if event == 'press':
+                self.controller.btn_cross.on_down(callback)
+            elif event == 'release':
+                self.controller.btn_cross.on_up(callback)
+        elif button == 'b':
+            if event == 'press':
+                self.controller.btn_circle.on_down(callback)
+            elif event == 'release':
+                self.controller.btn_circle.on_up(callback)
+        elif button == 'x':
+            if event == 'press':
+                self.controller.btn_square.on_down(callback)
+            elif event == 'release':
+                self.controller.btn_square.on_up(callback)
+        elif button == 'y':
+            if event == 'press':
+                self.controller.btn_triangle.on_down(callback)
+            elif event == 'release':
+                self.controller.btn_triangle.on_up(callback)
+            
+        elif button == 'dpad_up':
             if event == 'press':
                 self.controller.btn_up.on_down(callback)
             elif event == 'release':
                 self.controller.btn_up.on_up(callback)
+        elif button == 'dpad_down':
+            if event == 'press':
+                self.controller.btn_down.on_down(callback)
+            elif event == 'release':
+                self.controller.btn_down.on_up(callback)
+        elif button == 'dpad_left':
+            if event == 'press':
+                self.controller.btn_left.on_down(callback)
+            elif event == 'release':
+                self.controller.btn_left.on_up(callback)
+        elif button == 'dpad_right':
+            if event == 'press':
+                self.controller.btn_right.on_down(callback)
+            elif event == 'release':
+                self.controller.btn_right.on_up(callback)
+                
+        elif button == 'back':
+            if event == 'press':
+                self.controller.btn_create.on_down(callback)  # 这方法不按真实名称起,找了半天
+            elif event == 'release':
+                self.controller.btn_create.on_up(callback)
 
-    def set_lightbar_color(self, color):
-        if color == 'blue':
-            self.controller.lightbar.set_color_blue()
-        elif color == 'red':
-            self.controller.lightbar.set_color_red()
+    def set_lightbar_color(self, red : int, green : int, blue : int):
+        self.controller.lightbar.set_color(red, green, blue)
     
     def set_rumble(self, direction : str, strength : int, duration ):
         if direction == 'left':

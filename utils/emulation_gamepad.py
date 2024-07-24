@@ -90,3 +90,7 @@ class EmulationGamepad:
         self.DodgeAndAttack()
         self.ChangeAvatar("right")
         self.DodgeAndAttack()
+        
+    def BreathOfFire(self):
+        self.Attack()
+        self.Attack()

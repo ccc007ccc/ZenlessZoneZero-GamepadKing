@@ -14,7 +14,7 @@ class BaseEmulator(ABC):
         self.pad_right = False
         self.back = False
         
-        self.skills_num = 0
+        self.skills_num = 1
         self.double_dodge_is_open = True
         self.breath_of_Fire_is_open = False
         self.king_mode = False
@@ -26,6 +26,7 @@ class BaseEmulator(ABC):
 
     def change_mode(self):
         self.king_mode = not self.king_mode 
+        self.skills_num_change()
         print(f'模拟手柄已{"启用" if self.king_mode else "关闭"}')
         
     def double_dodge(self):
@@ -69,11 +70,15 @@ class BaseEmulator(ABC):
     
     def skills_num_add(self):
         self.skills_num += 1
+        self.skills_num_change()
         print(f'已启用技能数量: {self.skills_num}')
     def skills_num_sub(self):
         self.skills_num -= 1 if self.skills_num > 0 else 0
+        self.skills_num_change()
         print(f'已启用技能数量: {self.skills_num}')
-        
+    def skills_num_change(self):
+        ...
+    
     def on_left_tighter_and_pad_up(self):
         if self.left_trigger and self.pad_up:
             self.change_mode()

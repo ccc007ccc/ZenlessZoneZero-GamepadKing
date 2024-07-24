@@ -1,3 +1,4 @@
 vgamepad
 dualsense-controller
 inputs
+# PyQt5

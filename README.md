@@ -16,16 +16,19 @@
    git clone https://github.com/ccc007ccc/ZenlessZoneZero-GamepadKing.git
    cd ZenlessZoneZero-GamepadKing
    ```
+
 2. 安装所需库：
 
    ```sh
    pip install -r requirements.txt
    ```
+
 3. 运行脚本(一定要先连接好手柄,因为我不知道怎么写重连≧ ﹏ ≦)：
 
    ```sh
    python main.py
    ```
+
 4. 根据终端提示选择手柄类型
 5. 终端内按 `Ctrl + C` 退出。
 
@@ -39,7 +42,7 @@
 
 - 启动脚本后绝区零手柄震动会消失
   xbox手柄有时震动正常,ps5手柄100%没震动,不知道怎么修
-- 游戏内按b没有作用
+- 游戏内脚本不生效
   尝试重进游戏(有时重启脚本可以修复)
 
 ## 代办

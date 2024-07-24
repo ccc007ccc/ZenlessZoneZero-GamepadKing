@@ -80,6 +80,21 @@ class DualSenseController(BaseController):
     def set_lightbar_color(self, red : int, green : int, blue : int):
         self.controller.lightbar.set_color(red, green, blue)
     
+    def set_player_light(self, player_number : int):
+        if player_number == 0:
+            self.controller.player_leds.set_off()
+        elif player_number == 1:
+            self.controller.player_leds.set_center()
+        elif player_number == 2:
+            self.controller.player_leds.set_inner()
+        elif player_number == 3:
+            self.controller.player_leds.set_center_and_outer()
+        elif player_number == 4:
+            self.controller.player_leds._set_enable(0b01010 | 0b10001)
+        elif player_number == 5:
+            self.controller.player_leds.set_all()
+
+    
     def set_rumble(self, direction : str, strength : int, duration ):
         if direction == 'left':
             self.controller.left_rumble.set(strength)

@@ -5,6 +5,7 @@ import time
 
 class DualSenseController(BaseController):
     def __init__(self):
+        self.controller_type = 'dualsense'
         self.controller = self.connect_dualsense(1)
 
     def connect_dualsense(self, retry_interval):
@@ -18,6 +19,7 @@ class DualSenseController(BaseController):
                 time.sleep(retry_interval)
 
     def start(self):
+        super().start()
         self.controller.activate()
         self.controller.lightbar.set_color(0, 0, 255)
 
@@ -25,8 +27,47 @@ class DualSenseController(BaseController):
         self.controller.deactivate()
 
     def add_callback(self, button, event, callback):
-        if button == 'lt':
+        if button == 'r_x':
+            self.controller.right_stick_x.on_change(callback)
+        elif button == 'r_y':
+            self.controller.right_stick_y.on_change(callback)
+        elif button == 'l_x':
+            self.controller.left_stick_x.on_change(callback)
+        elif button == 'l_y':
+            self.controller.left_stick_y.on_change(callback)
+        elif button == 'r':
+            self.controller.right_stick.on_change(callback)
+        elif button == 'l':
+            self.controller.left_stick.on_change(callback)
+
+        
+        elif button == 'rs':
+            if event == 'press':
+                self.controller.btn_r3.on_down(callback)
+            elif event == 'release':
+                self.controller.btn_r3.on_up(callback)
+        elif button == 'ls':
+            if event == 'press':
+                self.controller.btn_l3.on_down(callback)
+            elif event == 'release':
+                self.controller.btn_l3.on_up(callback)
+        
+        elif button == 'rt':
+            self.controller.right_trigger.on_change(callback)
+        elif button == 'lt':
             self.controller.left_trigger.on_change(callback)
+        
+        elif button == 'rb':
+            if event == 'press':
+                self.controller.btn_r1.on_down(callback)
+            elif event == 'release':
+                self.controller.btn_r1.on_up(callback)
+        elif button == 'lb':
+            if event == 'press':
+                self.controller.btn_l1.on_down(callback)
+            elif event == 'release':
+                self.controller.btn_l1.on_up(callback)
+            
             
             
         elif button == 'a':
@@ -76,6 +117,25 @@ class DualSenseController(BaseController):
                 self.controller.btn_create.on_down(callback)  # 这方法不按真实名称起,找了半天
             elif event == 'release':
                 self.controller.btn_create.on_up(callback)
+        elif button == 'start':
+            if event == 'press':
+                self.controller.btn_options.on_down(callback)
+            elif event == 'release':
+                self.controller.btn_options.on_up(callback)
+        
+        elif button == 'home':
+            if event == 'press':
+                self.controller.btn_ps.on_down(callback)
+            elif event == 'release':
+                self.controller.btn_ps.on_up(callback)
+        
+        elif button == 'mute':
+            if event == 'press':
+                self.controller.btn_mute.on_down(callback)
+            elif event == 'release':
+                self.controller.btn_mute.on_up(callback)
+        
+
 
     def set_lightbar_color(self, red : int, green : int, blue : int):
         self.controller.lightbar.set_color(red, green, blue)
@@ -95,13 +155,14 @@ class DualSenseController(BaseController):
             self.controller.player_leds.set_all()
 
     
-    def set_rumble(self, direction : str, strength : int, duration ):
+    def set_rumble(self, direction : str, strength : int, duration = None ):
         if direction == 'left':
             self.controller.left_rumble.set(strength)
         elif direction == 'right':
             self.controller.right_rumble.set(strength)
         else:
             raise ValueError('Invalid direction')
-        time.sleep(duration)
+        if duration:
+            time.sleep(duration)
         self.controller.left_rumble.set(0)
         self.controller.right_rumble.set(0)

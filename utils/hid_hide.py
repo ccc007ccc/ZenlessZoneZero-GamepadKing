@@ -94,13 +94,13 @@ class HidHide:
         # 列出所有用于游戏的 HID 设备
         return self.run_command(f'"{self.hid_hide_cli_path}" --dev-gaming')
         
-    def dev_hide(self, device_instance_path):
+    def dev_hide(self, device_instance_path, auto = False):
         # 隐藏指定的设备
-        if hid_hide.is_hidden(device_instance_path):
-            print(f'设备{hid_hide.parse_dev_gaming_name(device_instance_path)}已解除隐藏')
+        if self.is_hidden(device_instance_path) and auto == True:
+            print(f'设备{self.parse_dev_gaming_name(device_instance_path)}已解除隐藏')
             return self.dev_unhide(device_instance_path)
         else:
-            print(f'设备{hid_hide.parse_dev_gaming_name(device_instance_path)}已隐藏')
+            print(f'设备{self.parse_dev_gaming_name(device_instance_path)}已隐藏')
             return self.run_command(f'"{self.hid_hide_cli_path}" --dev-hide "{device_instance_path}"')
         
     def dev_list(self):
@@ -222,6 +222,40 @@ class HidHide:
         
         # 比较指定设备实例路径是否在隐藏设备列表中
         return device_instance_path in hidden_devices
+    
+    # 隐藏面板
+    def hide_panel(self, auto = False):
+        """
+        隐藏面板
+        :param device_instance_path: 设备实例路径
+        :return: True/False
+        """
+        while True:
+            device_list = self.parse_dev_gaming_name()
+            # 如果列表中实例数量大于1
+            if len(device_list) > 1 or auto:
+                for index, device in enumerate(device_list):
+                    if self.is_hidden(self.parse_dev_gaming_path(index)):
+                        print(f"{index} : {device} 已隐藏")
+                    else:
+                        print(f"{index} : {device}")
+                if auto:
+                    index = int(input("请输入要隐藏或解除隐藏的设备序号："))
+                else:
+                    index = int(input("请输入要隐藏的设备序号："))
+                if index < len(device_list):
+                    if auto:
+                        self.dev_hide(self.parse_dev_gaming_path(index),True)
+                    else:
+                        self.dev_hide(self.parse_dev_gaming_path(index))
+                    break
+                else:
+                    print("输入错误")
+            else:
+                self.dev_hide(self.parse_dev_gaming_path(0))
+                break
+                
+
 
 if __name__ == "__main__":
     hid_hide = HidHide()
@@ -235,7 +269,7 @@ if __name__ == "__main__":
                     print(f"{index} : {device}")
             index = int(input("请输入要隐藏的设备序号："))
             if index < len(device_list):
-                hid_hide.dev_hide(hid_hide.parse_dev_gaming_path(index))
+                hid_hide.dev_hide(hid_hide.parse_dev_gaming_path(index), True)
             else:
                 print("输入错误")
         

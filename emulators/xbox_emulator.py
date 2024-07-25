@@ -4,6 +4,7 @@ import winsound
 
 class XboxEmulator(BaseEmulator):
     def _create_controller(self):
+        super()._create_controller()
         return XboxController()
     
     def change_mode(self):

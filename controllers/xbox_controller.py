@@ -5,6 +5,7 @@ from .base_controller import BaseController
 
 class XboxController(BaseController):
     def __init__(self):
+        self.controller_type = 'xbox'
         self.callbacks = {
             'a': {'press': [], 'release': []},
             'b': {'press': [], 'release': []},
@@ -22,22 +23,23 @@ class XboxController(BaseController):
             'dpad_down': {'press': [], 'release': []},
             'dpad_left': {'press': [], 'release': []},
             'dpad_right': {'press': [], 'release': []},
-            'ls_x': {'change': []},
-            'ls_y': {'change': []},
-            'rs_x': {'change': []},
-            'rs_y': {'change': []}
+            'l_x': {'change': []},
+            'l_y': {'change': []},
+            'r_x': {'change': []},
+            'r_y': {'change': []},
+            'home': {'press': [], 'release': []}
         }
         self.running = False
         self.thread = None
 
     def start(self):
+        super().start()
         self.running = True
         self.thread = threading.Thread(target=self._read_gamepad, daemon=True)
         self.thread.start()
 
     def stop(self):
         self.running = False
-        
 
     def add_callback(self, button, event, callback):
         self.callbacks[button][event].append(callback)
@@ -66,16 +68,14 @@ class XboxController(BaseController):
             self._callbacks('lb', event.state == 1)
         elif event.code == "BTN_TR":  # RB
             self._callbacks('rb', event.state == 1)
-            
         elif event.code == "ABS_Z":  # LT
             self._analog_callbacks('lt', event.state)
         elif event.code == "ABS_RZ":  # RT
             self._analog_callbacks('rt', event.state)
-            
         elif event.code == "BTN_SELECT":  # Back
-            self._callbacks('back', event.state == 1)
-        elif event.code == "BTN_START":  # Start
             self._callbacks('start', event.state == 1)
+        elif event.code == "BTN_START":  # Start
+            self._callbacks('back', event.state == 1)
         elif event.code == "BTN_THUMBL":  # LS
             self._callbacks('ls', event.state == 1)
         elif event.code == "BTN_THUMBR":  # RS
@@ -96,14 +96,18 @@ class XboxController(BaseController):
             else:
                 self._callbacks('dpad_left', False)
                 self._callbacks('dpad_right', False)
+                
+        
         elif event.code == "ABS_X":  # Left Stick X
-            self._analog_callbacks('ls_x', event.state)
+            self._analog_callbacks('l_x', event.state)
         elif event.code == "ABS_Y":  # Left Stick Y
-            self._analog_callbacks('ls_y', event.state)
+            self._analog_callbacks('l_y', event.state)
         elif event.code == "ABS_RX":  # Right Stick X
-            self._analog_callbacks('rs_x', event.state)
+            self._analog_callbacks('r_x', event.state)
         elif event.code == "ABS_RY":  # Right Stick Y
-            self._analog_callbacks('rs_y', event.state)
+            self._analog_callbacks('r_y', event.state)
+            
+
 
     def _callbacks(self, button, is_pressed):
         event = 'press' if is_pressed else 'release'

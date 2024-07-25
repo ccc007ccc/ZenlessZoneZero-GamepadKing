@@ -11,26 +11,22 @@
 ### 使用源代码
 
 1. 安装 [HidHide](https://github.com/nefarius/HidHide/releases/)
-
 2. 克隆存储库：
 
    ```sh
    git clone https://github.com/ccc007ccc/ZenlessZoneZero-GamepadKing.git
    cd ZenlessZoneZero-GamepadKing
    ```
-
 3. 安装所需库：
 
    ```sh
    pip install -r requirements.txt
    ```
-
 4. 运行脚本(一定要先连接好手柄,因为我不知道怎么写重连≧ ﹏ ≦)：
 
    ```sh
    python main.py
    ```
-
 5. 根据终端提示选择手柄类型
 6. 开启游戏
 7. 终端内按 `Ctrl + C` 退出。
@@ -50,11 +46,9 @@
 
 ## 代办
 
-- [*] 使用HidHide隐藏物理手柄的所有输入,全部由模拟手柄转发.
-
-- [*] 十一号刀刀烈火模式
-  
-- [*] 一键双闪(ps5手柄每次95%的概率成功)
+- [X] 使用HidHide隐藏物理手柄的所有输入,全部由模拟手柄转发.
+- [X] 十一号刀刀烈火模式
+- [X] 一键双闪(ps5手柄每次95%的概率成功)
 
 ## 免责声明
 

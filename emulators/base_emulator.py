@@ -4,11 +4,14 @@ from utils.hid_hide import HidHide
 import time, threading
 
 class BaseEmulator(ABC):
-    def __init__(self, controller_type : str):
+    def __init__(self, emulation_gamepad_type : str, gamepad_type):
         self.hid_hide = HidHide()
         self.is_running = True
         self.controller = self._create_controller()
-        self.gamepad = EmulationGamepad(controller_type)
+        self.emulation_gamepad_type = emulation_gamepad_type
+        self.gamepad_type = gamepad_type
+        
+        self.gamepad = EmulationGamepad(self.emulation_gamepad_type,self.gamepad_type)
         self.gamepad.gamepad.register_notification(callback_function=self.emulation_gamepad_callback)
         
         self.r_x = 127
@@ -130,32 +133,22 @@ class BaseEmulator(ABC):
         self._setup_callbacks()
         self.controller.start()
         threading.Thread(target=self.breath_of_Fire, daemon=True).start()
-        while self.is_running:
-            if self.gamepad.gamepad_type == 'xbox':
-                self.right_joystick_change_xy(self.r_x, self.r_y)
-                self.left_joystick_change_xy(self.l_x, self.l_y)
-            # self.right_joystick_change(self.r_x, self.r_y)
-            # self.left_joystick_change(self.l_x, self.l_y)
-            
-            self.on_left_tighter_and_pad_up()
-            self.on_left_tighter_and_pad_down()
-            self.on_left_tighter_and_pad_left()
-            self.on_left_tighter_and_pad_right()
-                    
-                    
-            self.double_dodge()
+        while self.is_running:            
+            self.run_loop()
             time.sleep(0.001)
         self.controller.stop()
+    
+    def run_loop(self):
+        self.on_left_tighter_and_pad_up()
+        self.on_left_tighter_and_pad_down()
+        self.on_left_tighter_and_pad_left()
+        self.on_left_tighter_and_pad_right()
+        self.double_dodge()
 
+    @abstractmethod
     def _setup_callbacks(self):
-        if self.gamepad.gamepad_type == 'xbox':
-            self.controller.add_callback('r_x', 'change', self.r_x_change)
-            self.controller.add_callback('r_y', 'change', self.r_y_change)
-            self.controller.add_callback('l_x', 'change', self.l_x_change)
-            self.controller.add_callback('l_y', 'change', self.l_y_change)
-        else:
-            self.controller.add_callback('r', 'change', self.right_joystick_change)
-            self.controller.add_callback('l', 'change', self.left_joystick_change)
+        
+        #摇杆xy回调在子类里定义
         
         self.controller.add_callback('rs', 'press', self.gamepad.rs_press)
         self.controller.add_callback('rs', 'release', self.gamepad.rs_release)

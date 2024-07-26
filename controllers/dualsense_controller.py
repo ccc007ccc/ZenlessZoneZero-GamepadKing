@@ -164,5 +164,5 @@ class DualSenseController(BaseController):
             raise ValueError('Invalid direction')
         if duration:
             time.sleep(duration)
-        self.controller.left_rumble.set(0)
-        self.controller.right_rumble.set(0)
+            self.controller.left_rumble.set(0)
+            self.controller.right_rumble.set(0)

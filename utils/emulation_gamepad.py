@@ -6,11 +6,16 @@ import vgamepad.win.virtual_gamepad
 
 class EmulationGamepad:
 
-    def __init__(self, gamepad_type='ds4'):
-        self.gamepad = vgamepad.VDS4Gamepad() if gamepad_type.lower() == 'ds4' else vgamepad.VX360Gamepad()
-        self._setup_buttons()
+    def __init__(self, emulation_gamepad_type, gamepad_type):
         self.stop_time = 0.03
+        self.emulation_gamepad_type = emulation_gamepad_type
         self.gamepad_type = gamepad_type
+        
+        self.gamepad = vgamepad.VDS4Gamepad() if emulation_gamepad_type.lower() == 'ds4' else vgamepad.VX360Gamepad()
+        self._setup_buttons()
+        
+        
+        
         self.rs = False
         self.ls = False
         
@@ -43,7 +48,7 @@ class EmulationGamepad:
         self.home = False
 
     def _setup_buttons(self):
-        if isinstance(self.gamepad, vgamepad.VDS4Gamepad):
+        if self.emulation_gamepad_type == 'ds4':
             self._setup_ds4_buttons()
         else:
             self._setup_xbox_buttons()
@@ -99,155 +104,126 @@ class EmulationGamepad:
         
         
     def up_press(self):
-        if self.gamepad_type == "xbox":
-            self.gamepad.press_button(self.UP)
-        else:
-            self.gamepad.directional_pad(self.UP)
         self.pad_up = True
         self.update_dpad()
         self.gamepad.update()
-
     def up_release(self):
-        if self.gamepad_type == "xbox":
-            self.gamepad.release_button(self.UP)
-        else:
-            self.gamepad.directional_pad(self.NONE)
         self.pad_up = False
         self.update_dpad()
         self.gamepad.update()
 
     def down_press(self):
-        if self.gamepad_type == "xbox":
-            self.gamepad.press_button(self.DOWN)
-        else:
-            self.gamepad.directional_pad(self.DOWN)
         self.pad_down = True
         self.update_dpad()
         self.gamepad.update()
-
     def down_release(self):
-        if self.gamepad_type == "xbox":
-            self.gamepad.release_button(self.DOWN)
-        else:
-            self.gamepad.directional_pad(self.NONE)
         self.pad_down = False
         self.update_dpad()
         self.gamepad.update()
 
     def left_press(self):
-        if self.gamepad_type == "xbox":
-            self.gamepad.press_button(self.LEFT)
-        else:
-            self.gamepad.directional_pad(self.LEFT)
         self.pad_left = True
         self.update_dpad()
         self.gamepad.update()
-
     def left_release(self):
-        if self.gamepad_type == "xbox":
-            self.gamepad.release_button(self.LEFT)
-        else:
-            self.gamepad.directional_pad(self.NONE)
         self.pad_left = False
         self.update_dpad()
         self.gamepad.update()
 
     def right_press(self):
-        if self.gamepad_type == "xbox":
-            self.gamepad.press_button(self.RIGHT)
-        else:
-            self.gamepad.directional_pad(self.RIGHT)
         self.pad_right = True
         self.update_dpad()
         self.gamepad.update()
-
     def right_release(self):
-        if self.gamepad_type == "xbox":
-            self.gamepad.release_button(self.RIGHT)
-        else:
-            self.gamepad.directional_pad(self.NONE)
         self.pad_right = False
         self.update_dpad()
         self.gamepad.update()
-
-    def left_up_press(self):
-        if self.gamepad_type != "xbox":
-            self.gamepad.directional_pad(self.LEFT_UP)
-        self.pad_left_up = True
-        self.update_dpad()
-        self.gamepad.update()
-
-    def left_up_release(self):
-        if self.gamepad_type != "xbox":
-            self.gamepad.directional_pad(self.NONE)
-        self.pad_left_up = False
-        self.update_dpad()
-        self.gamepad.update()
-
-    def left_down_press(self):
-        if self.gamepad_type != "xbox":
-            self.gamepad.directional_pad(self.LEFT_DOWN)
-        self.pad_left_down = True
-        self.update_dpad()
-        self.gamepad.update()
-
-    def left_down_release(self):
-        if self.gamepad_type != "xbox":
-            self.gamepad.directional_pad(self.NONE)
-        self.pad_left_down = False
-        self.update_dpad()
-        self.gamepad.update()
-
-    def right_up_press(self):
-        if self.gamepad_type != "xbox":
-            self.gamepad.directional_pad(self.RIGHT_UP)
-        self.pad_right_up = True
-        self.update_dpad()
-        self.gamepad.update()
-
-    def right_up_release(self):
-        if self.gamepad_type != "xbox":
-            self.gamepad.directional_pad(self.NONE)
-        self.pad_right_up = False
-        self.update_dpad()
-        self.gamepad.update()
-
-    def right_down_press(self):
-        if self.gamepad_type != "xbox":
-            self.gamepad.directional_pad(self.RIGHT_DOWN)
-        self.pad_right_down = True
-        self.update_dpad()
-        self.gamepad.update()
-
-    def right_down_release(self):
-        if self.gamepad_type != "xbox":
-            self.gamepad.directional_pad(self.NONE)
-        self.pad_right_down = False
-        self.update_dpad()
-        self.gamepad.update()
-
     def update_dpad(self):
-        if self.gamepad_type == "xbox":
-            return
-
-        if self.pad_up and self.pad_left:
-            self.gamepad.directional_pad(self.LEFT_UP)
-        elif self.pad_up and self.pad_right:
-            self.gamepad.directional_pad(self.RIGHT_UP)
-        elif self.pad_down and self.pad_left:
-            self.gamepad.directional_pad(self.LEFT_DOWN)
-        elif self.pad_down and self.pad_right:
-            self.gamepad.directional_pad(self.RIGHT_DOWN)
-        elif self.pad_up:
-            self.gamepad.directional_pad(self.UP)
-        elif self.pad_down:
-            self.gamepad.directional_pad(self.DOWN)
-        elif self.pad_left:
-            self.gamepad.directional_pad(self.LEFT)
-        elif self.pad_right:
-            self.gamepad.directional_pad(self.RIGHT)
-        else:
-            self.gamepad.directional_pad(self.NONE)
+        if self.emulation_gamepad_type == "xbox":
+        #     # 首先释放所有方向键
+        #     if self.pad_up == False:
+        #         self.gamepad.release_button(self.UP)
+        #     elif self.pad_down == False:
+        #         self.gamepad.release_button(self.DOWN)
+        #     elif self.pad_left == False:
+        #         self.gamepad.release_button(self.LEFT)
+        #     elif self.pad_right == False:
+        #         self.gamepad.release_button(self.RIGHT)
+            
+            # 然后根据当前状态按下相应的方向键
+            if self.pad_up and self.pad_left:
+                self.gamepad.press_button(self.UP)
+                self.gamepad.press_button(self.LEFT)
+                
+                self.gamepad.release_button(self.DOWN)
+                self.gamepad.release_button(self.RIGHT)
+            elif self.pad_up and self.pad_right:
+                self.gamepad.press_button(self.UP)
+                self.gamepad.press_button(self.RIGHT)
+                
+                self.gamepad.release_button(self.DOWN)
+                self.gamepad.release_button(self.LEFT)
+            elif self.pad_down and self.pad_left:
+                self.gamepad.press_button(self.DOWN)
+                self.gamepad.press_button(self.LEFT)
+                
+                self.gamepad.release_button(self.UP)
+                self.gamepad.release_button(self.RIGHT)
+            elif self.pad_down and self.pad_right:
+                self.gamepad.press_button(self.DOWN)
+                self.gamepad.press_button(self.RIGHT)
+                
+                self.gamepad.release_button(self.UP)
+                self.gamepad.release_button(self.LEFT)
+            else:
+                if self.pad_up:
+                    self.gamepad.press_button(self.UP)
+                    
+                    self.gamepad.release_button(self.DOWN)
+                    self.gamepad.release_button(self.LEFT)
+                    self.gamepad.release_button(self.RIGHT)
+                elif self.pad_down:
+                    self.gamepad.press_button(self.DOWN)
+                    
+                    self.gamepad.release_button(self.UP)
+                    self.gamepad.release_button(self.LEFT)
+                    self.gamepad.release_button(self.RIGHT)
+                elif self.pad_left:
+                    self.gamepad.press_button(self.LEFT)
+                    
+                    self.gamepad.release_button(self.UP)
+                    self.gamepad.release_button(self.DOWN)
+                    self.gamepad.release_button(self.RIGHT)
+                elif self.pad_right:
+                    self.gamepad.press_button(self.RIGHT)
+                    
+                    self.gamepad.release_button(self.UP)
+                    self.gamepad.release_button(self.DOWN)
+                    self.gamepad.release_button(self.LEFT)
+                else:
+                    self.gamepad.release_button(self.UP)
+                    self.gamepad.release_button(self.DOWN)
+                    self.gamepad.release_button(self.LEFT)
+                    self.gamepad.release_button(self.RIGHT)
+        elif self.emulation_gamepad_type == "ds4":
+            if self.pad_up and self.pad_left:
+                self.gamepad.directional_pad(self.LEFT_UP)
+            elif self.pad_up and self.pad_right:
+                self.gamepad.directional_pad(self.RIGHT_UP)
+            elif self.pad_down and self.pad_left:
+                self.gamepad.directional_pad(self.LEFT_DOWN)
+            elif self.pad_down and self.pad_right:
+                self.gamepad.directional_pad(self.RIGHT_DOWN)
+            elif self.pad_up:
+                self.gamepad.directional_pad(self.UP)
+            elif self.pad_down:
+                self.gamepad.directional_pad(self.DOWN)
+            elif self.pad_left:
+                self.gamepad.directional_pad(self.LEFT)
+            elif self.pad_right:
+                self.gamepad.directional_pad(self.RIGHT)
+            else:
+                self.gamepad.directional_pad(self.NONE)
 
     def start_press(self):
         self.gamepad.press_button(self.START)
@@ -379,17 +355,23 @@ class EmulationGamepad:
     def right_joystick(self, x, y):
         if self.gamepad_type == "xbox":
             self.gamepad.right_joystick_float(self.convert(x,True), self.convert(y,True))
-            self.gamepad.update()
-        else:
-            self.gamepad.right_joystick_float(self.convert(x), self.convert(y))
-            self.gamepad.update()
+        elif self.gamepad_type == "ds4":
+            if self.emulation_gamepad_type == "xbox":
+                self.gamepad.right_joystick_float(self.convert(x), 0 - self.convert(y))
+            else:
+                self.gamepad.right_joystick_float(self.convert(x), self.convert(y))
+                
+        self.gamepad.update()
     def left_joystick(self, x, y):
         if self.gamepad_type == "xbox":
             self.gamepad.left_joystick_float(self.convert(x, True), self.convert(y, True))
-            self.gamepad.update()
-        else:
-            self.gamepad.left_joystick_float(self.convert(x), self.convert(y))
-            self.gamepad.update()
+        elif self.gamepad_type == "ds4":
+            if self.emulation_gamepad_type == "xbox":
+                self.gamepad.left_joystick_float(self.convert(x), 0 - self.convert(y))
+            else:
+                self.gamepad.left_joystick_float(self.convert(x), self.convert(y))
+        
+        self.gamepad.update()
         
     def right_trigger(self, value):
         self.gamepad.right_trigger(value)

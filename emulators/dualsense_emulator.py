@@ -3,14 +3,19 @@ from controllers.dualsense_controller import DualSenseController
 import time,threading
 
 class DualSenseEmulator(BaseEmulator):
+    def _setup_callbacks(self):
+        super()._setup_callbacks()
+        self.controller.add_callback('r', 'change', self.right_joystick_change)
+        self.controller.add_callback('l', 'change', self.left_joystick_change)
+        
     def _create_controller(self):
         super()._create_controller()
         return DualSenseController()
     
     def emulation_gamepad_callback(self, client, target, large_motor, small_motor, led_number, user_data):
         super().emulation_gamepad_callback(client, target, large_motor, small_motor, led_number, user_data)
-        threading.Thread(target=self.controller.set_rumble, args=('left', large_motor, 0.05)).start()
-        threading.Thread(target=self.controller.set_rumble, args=('right', small_motor, 0.05)).start()
+        threading.Thread(target=self.controller.set_rumble, args=('left', large_motor)).start()
+        threading.Thread(target=self.controller.set_rumble, args=('right', small_motor)).start()
 
     def change_lightbar_color(self, mode : str):
         if mode == 'normal':

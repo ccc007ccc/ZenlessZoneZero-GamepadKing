@@ -4,12 +4,15 @@ from utils.hid_hide import HidHide
 
 def main():
     while True:
-        choice = input("请选择要使用的控制器:\n0. DualSense\n1. Xbox\n7. HidHide管理\n请输入数字: ")
+        choice = input("请选择你的手柄:\n0. DualSense\n1. Xbox\n7. HidHide管理\n请输入数字: ")
+        #第一个选择
         if choice == '0':
-            emulator = DualSenseEmulator("ds4")
+            # DualSenseEmulator("模拟成的手柄类型", "物理手柄类型")
+            emulator = DualSenseEmulator("ds4", "ds4")
             break
         elif choice == '1':
-            emulator = XboxEmulator("xbox")
+            # XboxEmulator("模拟成的手柄类型", "物理手柄类型")
+            emulator = XboxEmulator("xbox", "xbox")
             break
         elif choice == '7':
             print("HidHide管理")

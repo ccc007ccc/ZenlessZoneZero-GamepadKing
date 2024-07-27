@@ -137,7 +137,9 @@ class BaseEmulator(ABC):
             self.run_loop()
             time.sleep(0.001)
         self.controller.stop()
-    
+    def stop(self):
+        self.is_running = False
+        self.gamepad.stop()
     def run_loop(self):
         self.on_left_tighter_and_pad_up()
         self.on_left_tighter_and_pad_down()

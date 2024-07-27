@@ -224,7 +224,7 @@ class HidHide:
         return device_instance_path in hidden_devices
     
     # 隐藏面板
-    def hide_panel(self, auto = False):
+    def hide_panel(self, auto = False, auto_change = False):
         """
         隐藏面板
         :param device_instance_path: 设备实例路径
@@ -240,7 +240,12 @@ class HidHide:
                     else:
                         print(f"{index} : {device}")
                 if auto:
-                    index = int(input("请输入要隐藏或解除隐藏的设备序号："))
+                    if auto_change:
+                        print("自动解除隐藏")
+                        self.dev_hide(self.parse_dev_gaming_path(index),True)
+                        break
+                    else:
+                        index = int(input("请输入要隐藏或解除隐藏的设备序号："))
                 else:
                     index = int(input("请输入要隐藏的设备序号："))
                 if index < len(device_list):

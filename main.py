@@ -20,8 +20,12 @@ def main():
             return
         else:
             print("无效选项，请重新选择。")
-    
-    emulator.run()
-
+    try:
+        emulator.run()
+    except KeyboardInterrupt:
+        emulator.stop()
+        HidHide().hide_panel(True,True)
+        print("程序已退出。")
+        return
 if __name__ == "__main__":
     main()

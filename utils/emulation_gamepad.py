@@ -53,6 +53,8 @@ class EmulationGamepad:
         else:
             self._setup_xbox_buttons()
 
+    def stop(self):
+        del self.gamepad
     def _setup_ds4_buttons(self):
         # 定义DS4游戏手柄所有的按键
         self.NONE      = vgamepad.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_NONE

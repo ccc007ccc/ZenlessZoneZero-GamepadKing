@@ -233,33 +233,36 @@ class HidHide:
         while True:
             device_list = self.parse_dev_gaming_name()
             # 如果列表中实例数量大于1
-            if len(device_list) > 1 or auto:
-                for index, device in enumerate(device_list):
-                    if self.is_hidden(self.parse_dev_gaming_path(index)):
-                        print(f"{index} : {device} 已隐藏")
+            try:
+                if len(device_list) > 1 or auto:
+                    for index, device in enumerate(device_list):
+                        if self.is_hidden(self.parse_dev_gaming_path(index)):
+                            print(f"{index} : {device} 已隐藏")
+                        else:
+                            print(f"{index} : {device}")
+                    if auto:
+                        if auto_change:
+                            print("自动解除隐藏")
+                            self.dev_hide(self.parse_dev_gaming_path(index),True)
+                            break
+                        else:
+                            index = int(input("请输入要隐藏或解除隐藏的设备序号："))
                     else:
-                        print(f"{index} : {device}")
-                if auto:
-                    if auto_change:
-                        print("自动解除隐藏")
-                        self.dev_hide(self.parse_dev_gaming_path(index),True)
+                        index = int(input("请输入要隐藏的设备序号："))
+                    if index < len(device_list):
+                        if auto:
+                            self.dev_hide(self.parse_dev_gaming_path(index),True)
+                        else:
+                            self.dev_hide(self.parse_dev_gaming_path(index))
                         break
                     else:
-                        index = int(input("请输入要隐藏或解除隐藏的设备序号："))
+                        print("输入错误")
                 else:
-                    index = int(input("请输入要隐藏的设备序号："))
-                if index < len(device_list):
-                    if auto:
-                        self.dev_hide(self.parse_dev_gaming_path(index),True)
-                    else:
-                        self.dev_hide(self.parse_dev_gaming_path(index))
+                    self.dev_hide(self.parse_dev_gaming_path(0))
                     break
-                else:
-                    print("输入错误")
-            else:
-                self.dev_hide(self.parse_dev_gaming_path(0))
+            except UnboundLocalError as e:
+                print("列表为空")
                 break
-                
 
 
 if __name__ == "__main__":

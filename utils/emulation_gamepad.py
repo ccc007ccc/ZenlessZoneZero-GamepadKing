@@ -356,7 +356,10 @@ class EmulationGamepad:
         
     def right_joystick(self, x, y):
         if self.gamepad_type == "xbox":
-            self.gamepad.right_joystick_float(self.convert(x,True), self.convert(y,True))
+            if self.emulation_gamepad_type == "ds4":
+                self.gamepad.right_joystick_float(self.convert(x, True), 0 - self.convert(y,True))
+            else:
+                self.gamepad.right_joystick_float(self.convert(x,True), self.convert(y,True))
         elif self.gamepad_type == "ds4":
             if self.emulation_gamepad_type == "xbox":
                 self.gamepad.right_joystick_float(self.convert(x), 0 - self.convert(y))
@@ -366,7 +369,10 @@ class EmulationGamepad:
         self.gamepad.update()
     def left_joystick(self, x, y):
         if self.gamepad_type == "xbox":
-            self.gamepad.left_joystick_float(self.convert(x, True), self.convert(y, True))
+            if self.emulation_gamepad_type == "ds4":
+                self.gamepad.left_joystick_float(self.convert(x, True), 0 - self.convert(y,True))
+            else:
+                self.gamepad.left_joystick_float(self.convert(x,True), self.convert(y,True))
         elif self.gamepad_type == "ds4":
             if self.emulation_gamepad_type == "xbox":
                 self.gamepad.left_joystick_float(self.convert(x), 0 - self.convert(y))

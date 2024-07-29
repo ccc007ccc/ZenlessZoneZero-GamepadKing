@@ -1,12 +1,13 @@
-from abc import ABC, ABCMeta, abstractmethod
+from abc import ABC, abstractmethod
 from utils.emulation_gamepad import EmulationGamepad
 from utils.hid_hide import HidHide
 import time, threading
 
 class BaseEmulator(ABC):
-    def __init__(self, emulation_gamepad_type : str, gamepad_type):
+    def __init__(self, emulation_gamepad_type : str, gamepad_type, macro = True):
         self.hid_hide = HidHide()
         self.is_running = True
+        self.macro = macro
         self.controller = self._create_controller()
         self.emulation_gamepad_type = emulation_gamepad_type
         self.gamepad_type = gamepad_type
@@ -50,7 +51,7 @@ class BaseEmulator(ABC):
     def change_mode(self):
         self.king_mode = not self.king_mode 
         self.skills_num_change()
-        print(f'模拟手柄已{"启用" if self.king_mode else "关闭"}')
+        print(f'宏模式已{"启用" if self.king_mode else "关闭"}')
         time.sleep(0.3)
         
     def double_dodge(self):
@@ -133,8 +134,9 @@ class BaseEmulator(ABC):
         self._setup_callbacks()
         self.controller.start()
         threading.Thread(target=self.breath_of_Fire, daemon=True).start()
-        while self.is_running:            
-            self.run_loop()
+        while self.is_running:        
+            if self.macro:    
+                self.run_loop()
             time.sleep(0.001)
         self.controller.stop()
     def stop(self):

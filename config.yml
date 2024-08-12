@@ -1,15 +1,13 @@
-
 # GamepadKing Emulator 配置文件
 
 # 物理手柄类型 可选择 dualSense, xbox
-physical_controller: dualsense
+physical_controller: xbox
 
 # 模拟手柄类型 可选择 ds4, xbox
 emulated_controller: xbox
 
 # 是否在启动程序时自动开始模拟
-auto_start: True
+auto_start: False
 
 # 是否启用宏
 macro: True
-        

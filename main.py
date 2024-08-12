@@ -1,6 +1,11 @@
-from PySide6.QtWidgets import QApplication
-from gui.main_window import MainWindow
 import sys
+import os
+
+# Add the project root directory to sys.path
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+print(sys.path)
+
+from gui.main_window import MainApp
 def main():
     # while True:
     #     choice = input("请选择你的手柄:\n0. DualSense\n1. Xbox\n7. HidHide管理\n请输入数字: ")
@@ -26,10 +31,8 @@ def main():
     #     HidHide().hide_panel(True,True)
     #     print("程序已退出。")
     #     return
-    app = QApplication(sys.argv)
-    main_window = MainWindow()
-    main_window.show()
-    
-    sys.exit(app.exec())
+    app = MainApp()
+    app.protocol("WM_DELETE_WINDOW", app.on_closing)
+    app.mainloop()
 if __name__ == "__main__":
     main()

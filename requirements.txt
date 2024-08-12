@@ -1,5 +1,4 @@
 vgamepad
 dualsense-controller
 inputs
-PySide6
 pyyaml

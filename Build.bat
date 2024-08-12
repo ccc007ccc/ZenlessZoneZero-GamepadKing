@@ -7,7 +7,12 @@ echo Installing required packages...
 pip install -r requirements.txt
 
 echo Building the executable...
-pyinstaller --noconfirm --onedir --windowed --add-data "config.yml;." --add-data "hidapi.dll;." --add-data "gui/img;gui/img" --icon="gui/img/favicon.png" --name="Gamepad King" main.py
-
+pyinstaller -D --uac-admin --onefile  ^
+           --add-data "hidapi.dll;." ^
+           --add-data "controllers;controllers" ^
+           --add-data "emulators;emulators" ^
+           --add-data "gui;gui" ^
+           --icon="gui/img/favicon.png" ^
+           --name="Gamepad King" main.py
 echo Build complete!
 pause

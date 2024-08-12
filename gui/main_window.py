@@ -1,199 +1,189 @@
-import sys, ctypes, yaml, io
-from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QComboBox, QTextEdit, QLabel, QCheckBox
-from PySide6.QtGui import QIcon
-from PySide6.QtCore import QThread, Signal
+import sys
+import tkinter as tk
+from tkinter import ttk, messagebox
+import yaml
+from PIL import Image, ImageTk
+from threading import Thread
+from queue import Queue, Empty
 from emulators.dualsense_emulator import DualSenseEmulator
 from emulators.xbox_emulator import XboxEmulator
 from utils.hid_hide import HidHide
 
-# 重定向标准输出到自定义的StringIO对象
-class StringIORedirect(io.StringIO):
-    def __init__(self, signal):
-        super().__init__()
-        self.signal = signal
-
-    def write(self, string):
-        self.signal.emit(string)
-
-class EmulatorThread(QThread):
-    output_signal = Signal(str)
-
-    def __init__(self, emulator):
+class EmulatorThread(Thread):
+    def __init__(self, emulator, output_queue):
         super().__init__()
         self.emulator = emulator
-        self.stdout = sys.stdout
-        self.stderr = sys.stderr
+        self.output_queue = output_queue
+        self.running = True
 
     def run(self):
         try:
-            # 重定向标准输出和标准错误
-            sys.stdout = StringIORedirect(self.output_signal)
-            sys.stderr = StringIORedirect(self.output_signal)
             self.emulator.run()
         except Exception as e:
-            self.output_signal.emit(f"错误: {str(e)}")
+            self.output_queue.put(f"错误: {str(e)}")
         finally:
-            # 恢复标准输出和标准错误
-            sys.stdout = self.stdout
-            sys.stderr = self.stderr
+            self.running = False
 
-class MainWindow(QMainWindow):
+class MainApp(tk.Tk):
     def __init__(self):
         super().__init__()
-        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("starter")
-        self.setWindowTitle("GamepadKing Emulator")
-        self.setWindowIcon(QIcon("gui/img/favicon.png"))
-        self.setGeometry(100, 100, 600, 400)
+        self.title("GamepadKing Emulator")        # 锁定窗口大小
+        self.resizable(False, False)
+        self.geometry("600x400")
 
-        self.central_widget = QWidget()
-        self.setCentralWidget(self.central_widget)
-        self.layout = QVBoxLayout(self.central_widget)
-
+        # Configuration
+        self.config_file = 'config.yml'
+        self.auto_start = tk.BooleanVar()
+        self.macro = tk.BooleanVar()
+        self.physical_controller = tk.StringVar(value='dualsense')
+        self.emulated_controller = tk.StringVar(value='ds4')
+        self.emulator = None
+        self.emulator_thread = None
+        self.output_queue = Queue()
+        # 设置窗口图标
+        self.set_window_icon('gui\\img\\favicon.png')  # 更换为你的图标路径
         self.setup_ui()
         self.load_config()
 
-        self.emulator = None
-        self.emulator_thread = None
-
-        if self.auto_start_checkbox.isChecked():
+        if self.auto_start.get():
             self.start_emulation()
+            
+    def set_window_icon(self, icon_path):
+        try:
+            # 使用 Pillow 处理图标（支持更多格式）
+            image = Image.open(icon_path)
+            self.iconphoto(True, ImageTk.PhotoImage(image))
+        except Exception as e:
+            messagebox.showerror("图标设置错误", f"无法加载图标: {e}")
     def setup_ui(self):
-        # 下拉框用于选择控制器
-        self.physical_controller_combo = QComboBox()
-        self.physical_controller_combo.addItems(["dualsense", "xbox"])
-        self.emulated_controller_combo = QComboBox()
-        self.emulated_controller_combo.addItems(["ds4", "xbox"])
+        # Setup UI elements
+        frame = ttk.Frame(self)
+        frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
 
-        combo_layout = QHBoxLayout()
-        combo_layout.addWidget(QLabel("物理手柄:"))
-        combo_layout.addWidget(self.physical_controller_combo)
-        combo_layout.addWidget(QLabel("模拟手柄:"))
-        combo_layout.addWidget(self.emulated_controller_combo)
-        self.layout.addLayout(combo_layout)
-        
-        # 多选框配置布局
-        self.conifg_layout = QHBoxLayout()
-        self.macro_checkbox = QCheckBox("启用宏")
-        self.macro_checkbox.setChecked(True)
-        self.auto_start_checkbox = QCheckBox("下次启动程序是否自动启动模拟")
-        self.auto_start_checkbox.setChecked(False)
-        self.conifg_layout.addWidget(self.macro_checkbox)
-        self.conifg_layout.addWidget(self.auto_start_checkbox)
-        self.layout.addLayout(self.conifg_layout)
-        
+        # Physical Controller
+        ttk.Label(frame, text="物理手柄:").grid(row=0, column=0, padx=5, pady=5, sticky=tk.W)
+        physical_controller_combo = ttk.Combobox(frame, textvariable=self.physical_controller, values=["dualsense", "xbox"])
+        physical_controller_combo.grid(row=0, column=1, padx=5, pady=5)
 
-        # 按钮
-        button_layout = QHBoxLayout()
-        self.start_button = QPushButton("开始模拟")
-        self.start_button.clicked.connect(self.start_emulation)
-        self.stop_button = QPushButton("停止模拟")
-        self.stop_button.clicked.connect(self.stop_emulation)
-        self.stop_button.setEnabled(False)
-        self.save_config_button = QPushButton("保存配置")
-        self.save_config_button.clicked.connect(self.save_config)
-        self.load_config_button = QPushButton("读取配置")
-        self.load_config_button.clicked.connect(self.load_config)
-        button_layout.addWidget(self.start_button)
-        button_layout.addWidget(self.stop_button)
-        button_layout.addWidget(self.save_config_button)
-        button_layout.addWidget(self.load_config_button)
-        self.layout.addLayout(button_layout)
+        # Emulated Controller
+        ttk.Label(frame, text="模拟手柄:").grid(row=1, column=0, padx=5, pady=5, sticky=tk.W)
+        emulated_controller_combo = ttk.Combobox(frame, textvariable=self.emulated_controller, values=["ds4", "xbox"])
+        emulated_controller_combo.grid(row=1, column=1, padx=5, pady=5)
 
-        # 输出文本区域
-        self.output_text = QTextEdit()
-        self.output_text.setReadOnly(True)
-        self.layout.addWidget(self.output_text)
+        # Macro Checkbox
+        ttk.Checkbutton(frame, text="启用宏", variable=self.macro).grid(row=2, column=0,  padx=5, pady=5)
+
+        # Auto Start Checkbox
+        ttk.Checkbutton(frame, text="下次启动程序是否自动启动模拟", variable=self.auto_start).grid(row=2, column=1, padx=5, pady=5)
+
+        # Buttons
+        ttk.Button(frame, text="开始模拟", command=self.start_emulation).grid(row=4, column=0, padx=5, pady=5)
+        ttk.Button(frame, text="停止模拟", command=self.stop_emulation).grid(row=4, column=1, padx=5, pady=5)
+
+        # Output Text Area
+        self.output_text = tk.Text(frame, height=15, state=tk.DISABLED)
+        self.output_text.grid(row=5, column=0, columnspan=2, padx=5, pady=5, sticky=tk.W+tk.E)
+
+        # Load and Save Config Buttons
+        ttk.Button(frame, text="保存配置", command=self.save_config).grid(row=6, column=0, padx=5, pady=5)
+        ttk.Button(frame, text="读取配置", command=self.load_config).grid(row=6, column=1, padx=5, pady=5)
+
+        # Start the output update loop
+        self.update_output_loop()
 
     def load_config(self):
         try:
-            with open('config.yml', 'r', encoding='utf-8') as f:
-                config_str = f.read()
-                config = yaml.safe_load(config_str)
-                self.physical_controller_combo.setCurrentText(config.get('physical_controller', 'dualsense'))
-                self.emulated_controller_combo.setCurrentText(config.get('emulated_controller', 'ds4'))
-                self.macro_checkbox.setChecked(config.get('macro', True))
-                self.auto_start_checkbox.setChecked(config.get('auto_start', False))
-                
-            self.output_text.append("配置已加载。")
+            with open(self.config_file, 'r', encoding='utf-8') as f:
+                config = yaml.safe_load(f)
+                self.physical_controller.set(config.get('physical_controller', 'dualsense'))
+                self.emulated_controller.set(config.get('emulated_controller', 'ds4'))
+                self.macro.set(config.get('macro', True))
+                self.auto_start.set(config.get('auto_start', False))
+            self.append_output("配置已加载。")
         except FileNotFoundError:
-            self.output_text.append("找不到配置文件，使用默认设置。")
+            self.append_output("找不到配置文件，使用默认设置。")
         except Exception as e:
-            self.output_text.append(f"加载配置时出错: {str(e)}")
+            self.append_output(f"加载配置时出错: {str(e)}")
 
     def save_config(self):
         config = {
-            'auto_start': self.auto_start_checkbox.isChecked(),
-            'physical_controller': self.physical_controller_combo.currentText(),
-            'emulated_controller': self.emulated_controller_combo.currentText(),
-            'macro': self.macro_checkbox.isChecked(),
+            'auto_start': self.auto_start.get(),
+            'physical_controller': self.physical_controller.get(),
+            'emulated_controller': self.emulated_controller.get(),
+            'macro': self.macro.get(),
         }
-        
-        # 定义配置文件的模板，包括注释和顺序
-        config_template = """
+
+        config_template = f"""
 # GamepadKing Emulator 配置文件
 
 # 物理手柄类型 可选择 dualSense, xbox
-physical_controller: {physical_controller}
+physical_controller: {config['physical_controller']}
 
 # 模拟手柄类型 可选择 ds4, xbox
-emulated_controller: {emulated_controller}
+emulated_controller: {config['emulated_controller']}
 
 # 是否在启动程序时自动开始模拟
-auto_start: {auto_start}
+auto_start: {config['auto_start']}
 
 # 是否启用宏
-macro: {macro}
-            """
-        
+macro: {config['macro']}
+        """
+
         try:
-            with open('config.yml', 'w', encoding='utf-8') as f:
-                f.write(config_template.format(**config))
-            self.output_text.append("配置已保存。")
+            with open(self.config_file, 'w', encoding='utf-8') as f:
+                f.write(config_template)
+            self.append_output("配置已保存。")
         except Exception as e:
-            self.output_text.append(f"保存配置时出错: {str(e)}")
+            self.append_output(f"保存配置时出错: {str(e)}")
 
     def start_emulation(self):
         if self.emulator is not None:
-            self.output_text.append("模拟已在运行中。")
+            self.append_output("模拟已在运行中。")
             return
 
-        physical_controller = self.physical_controller_combo.currentText().lower()
-        emulated_controller = self.emulated_controller_combo.currentText()
-        macro = self.macro_checkbox.isChecked()
+        physical_controller = self.physical_controller.get().lower()
+        emulated_controller = self.emulated_controller.get()
+        macro = self.macro.get()
 
         if physical_controller == "dualsense":
             self.emulator = DualSenseEmulator(emulated_controller, "ds4", macro)
         elif physical_controller == "xbox":
             self.emulator = XboxEmulator(emulated_controller, "xbox", macro)
 
-        self.emulator_thread = EmulatorThread(self.emulator)
-        self.emulator_thread.output_signal.connect(self.update_output)
+        self.emulator_thread = EmulatorThread(self.emulator, self.output_queue)
         self.emulator_thread.start()
 
-        self.start_button.setEnabled(False)
-        self.stop_button.setEnabled(True)
-        self.output_text.append("模拟已开始。")
+        self.append_output("模拟已开始。")
 
     def stop_emulation(self):
         if self.emulator is not None:
             self.emulator.stop()
-            self.emulator_thread.wait()
+            self.emulator_thread.join()
             self.emulator = None
             self.emulator_thread = None
-            self.start_button.setEnabled(True)
-            self.stop_button.setEnabled(False)
-            self.output_text.append("模拟已停止。")
+            self.append_output("模拟已停止。")
             HidHide().hide_panel(True, True)
 
-    def update_output(self, text):
-        self.output_text.append(text.strip())
-    
-    def closeEvent(self, event):
+    def append_output(self, text):
+        self.output_text.configure(state=tk.NORMAL)
+        self.output_text.insert(tk.END, text + '\n')
+        self.output_text.configure(state=tk.DISABLED)
+
+    def update_output_loop(self):
+        while self.emulator_thread and self.emulator_thread.is_alive():
+            try:
+                text = self.output_queue.get_nowait()
+                self.append_output(text)
+            except Empty:
+                pass
+            self.after(100, self.update_output_loop)
+
+    def on_closing(self):
         if self.emulator is not None:
             self.stop_emulation()
+        self.destroy()
 
 if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    window = MainWindow()
-    window.show()
-    sys.exit(app.exec())
+    app = MainApp()
+    app.protocol("WM_DELETE_WINDOW", app.on_closing)
+    app.mainloop()

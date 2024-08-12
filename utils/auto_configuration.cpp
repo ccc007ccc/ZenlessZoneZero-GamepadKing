@@ -7,6 +7,8 @@
 #include <shellapi.h>
 #include <fstream>
 
+namespace fs = std::filesystem;
+
 // 设置控制台为UTF-8编码
 void setConsoleEncoding() {
     SetConsoleOutputCP(CP_UTF8);
@@ -66,7 +68,7 @@ bool isHidHideInstalled() {
 bool setupPython() {
     std::wstring pythonZip = L"python.zip";
     std::wstring pythonUrl = L"https://github.com/ccc007ccc/ZenlessZoneZero-GamepadKing/archive/refs/heads/venv.zip";
-    std::wstring pythonDir = L"python_env";
+    std::wstring pythonDir = L"venv";
 
     std::cout << "下载Python..." << std::endl;
     if (!downloadFile(pythonUrl, pythonZip)) {
@@ -82,15 +84,33 @@ bool setupPython() {
     }
 
     std::filesystem::remove(pythonZip); // 删除压缩包
-    // 移动Python到当前目录
-    std::wstring moveCommand = L"move /Y '" + pythonDir + L"\\ZenlessZoneZero-GamepadKing-venv' python_env";
 
+    // 构建源路径和目标路径
+    fs::path srcPath = "venv/ZenlessZoneZero-GamepadKing-venv";
+    fs::path destPath = "venv";
+
+    // 创建目标文件夹
+    fs::create_directory(destPath);
+
+    // 复制文件夹
+    for (const auto& entry : fs::recursive_directory_iterator(srcPath)) {
+        fs::path relPath = entry.path().lexically_relative(srcPath);
+        fs::path destFilePath = destPath / relPath;
+        if (fs::is_directory(entry.path())) {
+            fs::create_directory(destFilePath);
+        } else {
+            fs::copy_file(entry.path(), destFilePath);
+        }
+    }
+
+    // 删除原始文件夹
+    fs::remove_all(srcPath);
     return true;
 }
 
 // 检测pip是否安装
 bool isPipInstalled() {
-    std::wstring pipPath = L"python_env\\Scripts\\pip.exe";
+    std::wstring pipPath = L"venv\\Scripts\\pip.exe";
     return std::filesystem::exists(pipPath);
 }
 
@@ -104,7 +124,7 @@ bool installPip() {
         std::cerr << "下载Pip安装程序失败。" << std::endl;
         return false;
     }
-    if (system("python_env\\python.exe get-pip.py") != 0) {
+    if (system("venv\\python.exe get-pip.py") != 0) {
         std::cerr << "Pip安装失败。" << std::endl;
         return false;
     }
@@ -114,7 +134,7 @@ bool installPip() {
 
 // 检查Python环境是否已设置
 bool isPythonSetup() {
-    return std::filesystem::exists("python_env\\python.exe");
+    return std::filesystem::exists("venv\\Scripts\\python.exe");
 }
 
 // 检查是否存在main.py
@@ -132,7 +152,7 @@ bool isMainPyExists() {
 // 安装依赖项
 bool installDependencies() {
     std::cout << "安装Python依赖项..." << std::endl;
-    std::wstring pipCommand = L"python_env\\Scripts\\pip.exe install -r requirements.txt";
+    std::wstring pipCommand = L"venv\\Scripts\\pip.exe install -r requirements.txt";
     if (system(std::string(pipCommand.begin(), pipCommand.end()).c_str()) != 0) {
         std::cerr << "依赖安装失败。" << std::endl;
         return false;
@@ -143,7 +163,7 @@ bool installDependencies() {
 // 运行Python脚本
 bool runPythonScript() {
     std::cout << "启动Python脚本..." << std::endl;
-    if (system("python_env\\python.exe main.py") != 0) {
+    if (system("venv\\Scripts\\python.exe main.py") != 0) {
         std::cerr << "Python脚本运行失败。" << std::endl;
         return false;
     }

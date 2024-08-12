@@ -3,7 +3,7 @@
 /temp_build
 /build
 /test.py
-/config.yml
 __pycache__/
 **/__pycache__/
 /venv
+config.yml

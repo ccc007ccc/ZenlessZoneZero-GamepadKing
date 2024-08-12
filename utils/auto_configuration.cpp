@@ -65,7 +65,7 @@ bool isHidHideInstalled() {
 // 下载并解压Python
 bool setupPython() {
     std::wstring pythonZip = L"python.zip";
-    std::wstring pythonUrl = L"https://www.python.org/ftp/python/3.11.5/python-3.11.5-embed-amd64.zip";
+    std::wstring pythonUrl = L"https://github.com/ccc007ccc/ZenlessZoneZero-GamepadKing/archive/refs/heads/venv.zip";
     std::wstring pythonDir = L"python_env";
 
     std::cout << "下载Python..." << std::endl;
@@ -82,17 +82,8 @@ bool setupPython() {
     }
 
     std::filesystem::remove(pythonZip); // 删除压缩包
-
-    // 修改python311._pth文件
-    std::wstring pthFile = pythonDir + L"\\python311._pth";
-    std::wofstream file(pthFile.c_str(), std::ios::app);
-    if (file.is_open()) {
-        file << L"\n.\\Lib\\site-packages" << std::endl;
-        file.close();
-    } else {
-        std::cerr << "无法修改python311._pth文件。" << std::endl;
-        return false;
-    }
+    // 移动Python到当前目录
+    std::wstring moveCommand = L"move /Y '" + pythonDir + L"\\ZenlessZoneZero-GamepadKing-venv' python_env";
 
     return true;
 }

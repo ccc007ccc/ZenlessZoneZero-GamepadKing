@@ -1,5 +1,0 @@
-vgamepad
-dualsense-controller
-inputs
-pyyaml
-pillow

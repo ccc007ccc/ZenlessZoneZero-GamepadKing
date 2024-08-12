@@ -1,0 +1,6 @@
+[console_scripts]
+dualsense-controller-contextmanager-usage-example=examples.contextmanager_usage_example:main
+dualsense-controller-core-example=examples.core_example:main
+dualsense-controller-example=examples.example:main
+dualsense-controller-example-trigger=examples.example_trigger:main
+

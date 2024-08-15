@@ -1,4 +1,4 @@
-import sys
+import sys, time
 import ctypes
 import yaml
 import io
@@ -198,33 +198,44 @@ macro: {macro}
         self.output_text.config(state=tk.NORMAL)
         self.output_text.insert(tk.END, "模拟已开始。\n")
         self.output_text.config(state=tk.DISABLED)
+        
 
-    def stop_emulation(self):
+    def stop_emulation(self, close_window=False):
         if self.emulator is not None:
-            self.emulator_thread.stop()
-
-            # 这里使用after方法来定期检查线程是否停止，避免阻塞主线程
-            self.after(100, self.check_thread_stopped)
-
-    def check_thread_stopped(self):
-        if self.emulator_thread.is_alive():
-            self.after(100, self.check_thread_stopped)
-        else:
-            self.emulator = None
-            self.emulator_thread = None
-            self.start_button.config(state=tk.NORMAL)
-            self.stop_button.config(state=tk.DISABLED)
-
+            self.stop_button.config(state=tk.DISABLED)  # 禁用停止模拟按钮
             self.output_text.config(state=tk.NORMAL)
-            self.output_text.insert(tk.END, "模拟已停止。\n")
+            print("正在停止模拟...")
+            self.output_text.insert(tk.END, "正在停止模拟...\n")
             self.output_text.config(state=tk.DISABLED)
 
-            HidHide().hide_panel(True, True)
+            def stop_emulator_thread():
+                self.emulator_thread.stop()
+                self.emulator_thread.join()  # 等待线程结束
 
+                self.emulator = None
+                self.emulator_thread = None
+                self.start_button.config(state=tk.NORMAL)
+                self.stop_button.config(state=tk.DISABLED)
+
+                self.output_text.config(state=tk.NORMAL)
+                print("模拟已停止。")
+                self.output_text.insert(tk.END, "模拟已停止。\n")
+                self.output_text.config(state=tk.DISABLED)
+
+                HidHide().hide_panel(True, True)
+                
+                if close_window:
+                    self.close_window()
+
+            threading.Thread(target=stop_emulator_thread,daemon=True).start()  # 在单独的线程中执行停止操作
+
+    def close_window(self):
+        self.destroy()
     def on_closing(self):
         if self.emulator is not None:
-            self.stop_emulation()
-        self.destroy()
+            self.stop_emulation(True)
+        else:
+            self.close_window()
 
 if __name__ == "__main__":
     window = MainWindow()

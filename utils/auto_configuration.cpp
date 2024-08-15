@@ -134,7 +134,7 @@ bool installPip() {
 
 // 检查Python环境是否已设置
 bool isPythonSetup() {
-    return std::filesystem::exists("venv\\Scripts\\python.exe");
+    return std::filesystem::exists("venv\\python.exe");
 }
 
 // 检查是否存在main.py
@@ -163,7 +163,7 @@ bool installDependencies() {
 // 运行Python脚本
 bool runPythonScript() {
     std::cout << "启动Python脚本..." << std::endl;
-    if (system("venv\\Scripts\\python.exe main.py") != 0) {
+    if (system("venv\\python.exe main.py") != 0) {
         std::cerr << "Python脚本运行失败。" << std::endl;
         return false;
     }

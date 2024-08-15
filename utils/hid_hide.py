@@ -1,10 +1,13 @@
-import subprocess, sys, winreg, json, re
+import subprocess, sys, winreg, json, re, os
 
 class HidHide:
     def __init__(self):
         # 初始化时获取 HidHide 的路径和 CLI 的路径
         self.hid_hide_path = self.get_hid_hide_path()
         self.hid_hide_cli_path = self.get_hid_hide_cli_path()
+        self.inv_off()
+        self.app_reg_python()
+        self.app_reg_auto_configuration()
         
     def read_registry_value(self, key, subkey, value_name):
         # 读取注册表值
@@ -123,6 +126,7 @@ class HidHide:
         
     def inv_off(self):
         # 关闭逆应用程序列表
+        print("关闭逆应用程序列表")
         return self.run_command(f'"{self.hid_hide_cli_path}" --inv-off')
         
     def inv_on(self):
@@ -145,6 +149,14 @@ class HidHide:
             print(f'当前运行的 Python 程序路径为: {python_path}, 已注册到 HidHide 中')
         except Exception as e:
             print(f"HidHide 注册 Python 程序时出错: {e}")
+    def app_reg_auto_configuration(self):
+        try:
+            # 获取当前py文件的路径
+            current_file_path = os.path.dirname(os.path.dirname(__file__)) + "\\AutoConfiguration.exe"
+            print(f'当前auto_configuration文件的路径为: {current_file_path}, 已注册到 HidHide 中')
+            self.app_reg(current_file_path)
+        except Exception as e:
+            print(f"HidHide 注册auto_configuration时出错: {e}")
             
     def parse_dev_gaming(self):
         # 运行 `--dev-gaming` 命令并获取输出

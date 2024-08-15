@@ -1,5 +1,8 @@
 import sys
 import os
+# from emulators.dualsense_emulator import DualSenseEmulator
+# from emulators.xbox_emulator import XboxEmulator
+# from utils.hid_hide import HidHide
 
 # Add the project root directory to sys.path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -32,6 +35,7 @@ def main():
     #     print("程序已退出。")
     #     return
     app = MainWindow()
+    # 绑定窗口关闭事件
     app.protocol("WM_DELETE_WINDOW", app.on_closing)
     app.mainloop()
 if __name__ == "__main__":

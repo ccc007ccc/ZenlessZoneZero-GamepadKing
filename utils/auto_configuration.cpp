@@ -179,6 +179,11 @@ void waitForKeyPress() {
 int main() {
     setConsoleEncoding(); // 设置控制台编码为UTF-8
 
+    if (!isMainPyExists()) {
+        waitForKeyPress();
+        std::exit(EXIT_FAILURE);
+    }
+
     if (!isHidHideInstalled()) {
         if (!installHidHide()) {
             waitForKeyPress();
@@ -193,24 +198,18 @@ int main() {
         }
     }
 
-    if (!isPipInstalled()) {
-        if (!installPip()) {
-            waitForKeyPress();
-            std::exit(EXIT_FAILURE);
-        }
-    }
+    // if (!isPipInstalled()) {
+    //     if (!installPip()) {
+    //         waitForKeyPress();
+    //         std::exit(EXIT_FAILURE);
+    //     }
+    // }
 
-    if (!isMainPyExists()) {
-        waitForKeyPress();
-        std::exit(EXIT_FAILURE);
-    }
-
-
-    // 安装依赖项
-    if (!installDependencies()) {
-        waitForKeyPress();
-        std::exit(EXIT_FAILURE);
-    }
+    // // 安装依赖项
+    // if (!installDependencies()) {
+    //     waitForKeyPress();
+    //     std::exit(EXIT_FAILURE);
+    // }
 
     if (!runPythonScript()) {
         waitForKeyPress();
